@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-"""Generate Locate module Figures 4.1–4.4 as PNGs."""
+"""Generate Locate module Figures 4.1–4.4 as 3D PNGs."""
 
 from pathlib import Path
 from typing import Tuple
@@ -160,9 +160,6 @@ def make_fig_4_2_currents_3d(outpath: str) -> None:
             trajectory, w_signs = integrate_trajectory(x0, y0, z0, force_flip_step=130)
             if len(w_signs) > 1 and not np.any(np.diff(np.sign(w_signs)) != 0):
                 mid = min(len(w_signs) - 1, 130)
-                x_mid, y_mid, z_mid = trajectory[mid]
-                z_mid = float(np.clip(z_mid + 120.0, 200.0, 2000.0))
-                trajectory[mid] = (x_mid, y_mid, z_mid)
                 w_signs[mid] = -w_signs[mid - 1]
 
         if trajectory is None or len(trajectory) < 2:
