@@ -1,13 +1,8 @@
-from __future__ import annotations
-
-"""Generate Locate module Figures 4.1–4.4 as 3D PNGs."""
-
-from pathlib import Path
+import os
 from typing import Tuple
 
 import numpy as np
 import matplotlib.pyplot as plt
-from matplotlib.lines import Line2D
 from mpl_toolkits.mplot3d import Axes3D  # noqa: F401
 
 
@@ -17,7 +12,6 @@ ZLIM: Tuple[float, float] = (0, 3000)
 
 
 def _setup_3d_ax(fig: plt.Figure) -> plt.Axes:
-    """Create a 3D axes with shared limits, view, and depth direction."""
     ax = fig.add_subplot(111, projection="3d")
     ax.set_xlim(*XLIM)
     ax.set_ylim(*YLIM)
@@ -32,13 +26,11 @@ def _setup_3d_ax(fig: plt.Figure) -> plt.Axes:
 
 
 def _save_fig(fig: plt.Figure, outpath: str) -> None:
-    """Save the figure with consistent output settings."""
     fig.savefig(outpath, dpi=300, bbox_inches="tight", facecolor="white")
     plt.close(fig)
 
 
 def make_fig_4_1_constraints_3d(outpath: str) -> None:
-    """Figure 4.1: constraints volume with seabed surface and depth limits."""
     fig = plt.figure(figsize=(6.5, 5.5))
     ax = _setup_3d_ax(fig)
 
@@ -65,22 +57,18 @@ def make_fig_4_1_constraints_3d(outpath: str) -> None:
 
     ax.plot_surface(seabed_xx, seabed_yy, seabed_zz, cmap="terrain", alpha=0.65, linewidth=0, antialiased=True)
 
-    depth_limit_style = dict(color="black", linestyle="--", alpha=0.6)
-    ax.plot([XLIM[0], XLIM[1]], [YLIM[0], YLIM[0]], [z_min, z_min], **depth_limit_style)
-    ax.plot([XLIM[0], XLIM[1]], [YLIM[1], YLIM[1]], [z_max, z_max], **depth_limit_style)
+    ax.plot([], [], [], color="tab:blue", label="Feasible volume")
+    ax.plot([], [], [], color="saddlebrown", label="Seabed surface")
+    ax.plot([], [], [], color="black", linestyle="--", label="Depth limits")
+    ax.plot([XLIM[0], XLIM[1]], [YLIM[0], YLIM[0]], [z_min, z_min], color="black", linestyle="--", alpha=0.6)
+    ax.plot([XLIM[0], XLIM[1]], [YLIM[1], YLIM[1]], [z_max, z_max], color="black", linestyle="--", alpha=0.6)
 
-    legend_handles = [
-        Line2D([0], [0], color="tab:blue", label="Feasible volume"),
-        Line2D([0], [0], color="saddlebrown", label="Seabed surface"),
-        Line2D([0], [0], color="black", linestyle="--", label="Depth limits"),
-    ]
-    ax.legend(handles=legend_handles, loc="upper left")
+    ax.legend(loc="upper left")
 
     _save_fig(fig, outpath)
 
 
 def make_fig_4_2_currents_3d(outpath: str) -> None:
-    """Figure 4.2: 3D current field with horizontal and vertical components."""
     fig = plt.figure(figsize=(6.5, 5.5))
     ax = _setup_3d_ax(fig)
 
@@ -121,17 +109,14 @@ def make_fig_4_2_currents_3d(outpath: str) -> None:
         alpha=0.8,
     )
 
-    legend_handles = [
-        Line2D([0], [0], color="tab:cyan", label="w > 0"),
-        Line2D([0], [0], color="tab:purple", label="w < 0"),
-    ]
-    ax.legend(handles=legend_handles, loc="upper left")
+    ax.plot([], [], [], color="tab:cyan", label="w > 0")
+    ax.plot([], [], [], color="tab:purple", label="w < 0")
+    ax.legend(loc="upper left")
 
     _save_fig(fig, outpath)
 
 
 def _draw_box(ax: plt.Axes, center: Tuple[float, float, float], size: Tuple[float, float, float], color: str) -> None:
-    """Draw a wireframe cuboid representing a simplified vehicle."""
     cx, cy, cz = center
     lx, ly, lz = size
     x = np.array([cx - lx / 2, cx + lx / 2])
@@ -149,7 +134,6 @@ def _draw_box(ax: plt.Axes, center: Tuple[float, float, float], size: Tuple[floa
 
 
 def make_fig_4_3_buoyancy_attitude_density_3d(outpath: str) -> None:
-    """Figure 4.3: density layers, buoyancy, gravity, and attitude effects."""
     fig = plt.figure(figsize=(6.5, 5.5))
     ax = _setup_3d_ax(fig)
 
@@ -184,19 +168,16 @@ def make_fig_4_3_buoyancy_attitude_density_3d(outpath: str) -> None:
         ax.quiver(cx, cy, cz, 0, 0, -buoyancy, color="tab:green", length=1, normalize=False)
         ax.quiver(cx, cy, cz, 8, -6, -20, color="tab:red", length=1, normalize=False)
 
-    legend_handles = [
-        Line2D([0], [0], color="tab:blue", label="Density layers"),
-        Line2D([0], [0], color="tab:green", label="Buoyancy"),
-        Line2D([0], [0], color="black", label="Gravity"),
-        Line2D([0], [0], color="tab:red", label="Equivalent perturbation"),
-    ]
-    ax.legend(handles=legend_handles, loc="upper left")
+    ax.plot([], [], [], color="tab:blue", label="Density layers")
+    ax.plot([], [], [], color="tab:green", label="Buoyancy")
+    ax.plot([], [], [], color="black", label="Gravity")
+    ax.plot([], [], [], color="tab:red", label="Equivalent perturbation")
+    ax.legend(loc="upper left")
 
     _save_fig(fig, outpath)
 
 
 def make_fig_4_4_stochastic_diffusion_3d(outpath: str) -> None:
-    """Figure 4.4: particle cloud diffusion with an uncertainty ellipsoid."""
     fig = plt.figure(figsize=(6.5, 5.5))
     ax = _setup_3d_ax(fig)
 
@@ -227,16 +208,15 @@ def make_fig_4_4_stochastic_diffusion_3d(outpath: str) -> None:
 
 
 def main() -> None:
-    """Generate all four Locate 3D figures into the fixed output directory."""
-    out_dir = Path("outputs") / "locate" / "visualizations"
-    out_dir.mkdir(parents=True, exist_ok=True)
+    out_dir = os.path.join("outputs", "locate", "visualizations")
+    os.makedirs(out_dir, exist_ok=True)
 
-    make_fig_4_1_constraints_3d(str(out_dir / "Fig_4_1_constraints_3D.png"))
-    make_fig_4_2_currents_3d(str(out_dir / "Fig_4_2_currents_3D.png"))
+    make_fig_4_1_constraints_3d(os.path.join(out_dir, "Fig_4_1_constraints_3D.png"))
+    make_fig_4_2_currents_3d(os.path.join(out_dir, "Fig_4_2_currents_3D.png"))
     make_fig_4_3_buoyancy_attitude_density_3d(
-        str(out_dir / "Fig_4_3_buoyancy_attitude_density_3D.png")
+        os.path.join(out_dir, "Fig_4_3_buoyancy_attitude_density_3D.png")
     )
-    make_fig_4_4_stochastic_diffusion_3d(str(out_dir / "Fig_4_4_stochastic_diffusion_3D.png"))
+    make_fig_4_4_stochastic_diffusion_3d(os.path.join(out_dir, "Fig_4_4_stochastic_diffusion_3D.png"))
 
 
 if __name__ == "__main__":
